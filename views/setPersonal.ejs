@@ -1,0 +1,98 @@
+<% include header.ejs %>
+<link rel="stylesheet" href="css/cropper.css">
+<div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+        <h2>设置个人信息</h2>
+        <form>
+            <div class="form-group">
+                <div class="avatar-box">
+                    <img src="avatar/<%= avatar %>" alt="" width="100%">
+                    <div class="avatar-box-cover" id="js-update-avatar">修改头像</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sex">性别</label>
+                <p>
+                    <label><input type="radio" name="sex" value="男" checked>男</label>
+                    <label class="ml"><input type="radio" name="sex" value="女">女</label>
+                </p>
+            </div>
+            <div class="form-group">
+                <label for="birthday">生日</label>
+                <input type="date" class="form-control" id="birthday" placeholder="请输入邮箱">
+            </div>
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" class="form-control" id="email" placeholder="请输入邮箱">
+            </div>
+            <button type="button" class="btn btn-default " id="js-submit-btn">修改</button>
+        </form>
+        <div class="alert alert-danger dis-none" role="alert" id="js-false-box"></div>
+    </div>
+</div> <!-- /container -->
+<div class="modal fade" tabindex="-1" role="dialog" id="js-update-avatar-modal">
+    <div class="modal-dialog" role="document">
+        <form action="/postAvatar" method="post" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">修改头像</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="file" name="avatarImg" id="js-upload-avatar">
+                </div>
+                <img src="" class="fade" id="js-show-avatar" width="100%" >
+                <input type="text" name="cropdata" class="hide" id="js-cropdata-input">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" id="js-update-avatar-btn">确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </form>
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<% include footer.ejs %>
+<script src="js/cropper.js"></script>
+<script>
+    $("#js-update-avatar").click(function () {
+        $("#js-update-avatar-modal").modal("show");
+    });
+
+    $("#js-upload-avatar").change(function () {
+        $("#js-show-avatar").attr("src", getObjectURL(this.files[0]));
+        var cropper = new Cropper($("#js-show-avatar").get(0), {
+            aspectRatio: 9 / 9,
+            crop: function (e) {
+                var data = e.detail.x+"&"+e.detail.y+"&"+e.detail.height+"&"+e.detail.width;
+                $("#js-cropdata-input").val(data);
+
+                console.log(e.detail.x);
+                console.log(e.detail.y);
+                console.log(e.detail.width);
+                console.log(e.detail.height);
+                console.log(e.detail.rotate);
+                console.log(e.detail.scaleX);
+                console.log(e.detail.scaleY);
+            }
+        });
+    })
+
+    //建立一個可存取到該file的url
+    function getObjectURL(file) {
+        var url = null;
+        if (window.createObjectURL != undefined) { // basic
+            url = window.createObjectURL(file);
+        } else if (window.URL != undefined) { // mozilla(firefox)
+            url = window.URL.createObjectURL(file);
+        } else if (window.webkitURL != undefined) { // webkit or chrome
+            url = window.webkitURL.createObjectURL(file);
+        }
+        return url;
+    }
+
+
+</script>
+</body>
+</html>
