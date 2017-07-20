@@ -13,6 +13,19 @@ function _connect(callback){
         db.close();
     });
 }
+init();
+//对数据库进行初始化
+function init(){
+    _connect(function(err,db){
+        if(err){
+            console.log(err);
+            return;
+        }
+        db.collection("user").createIndex({"username":1},null,function(err,result){
+           console.log(result);
+        });
+    });
+}
 //查数据
 exports.find = function(collectionName,jsonData,callback){
     _connect(function(err,db){

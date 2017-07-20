@@ -38,6 +38,8 @@ app.get("/login",router.showLogin);
 app.post("/doLogin",router.doLogin);
 //设置个人信息
 app.get("/setPersonal",router.showSetPersonal);
+//设置个人信息
+app.post("/doSetPersonal",router.doSetPersonal);
 //上传头像
 app.post("/postAvatar",router.postAvatar);
 //404页面

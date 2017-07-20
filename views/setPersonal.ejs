@@ -14,17 +14,17 @@
             <div class="form-group">
                 <label for="sex">性别</label>
                 <p>
-                    <label><input type="radio" name="sex" value="男" checked>男</label>
-                    <label class="ml"><input type="radio" name="sex" value="女">女</label>
+                    <label><input type="radio" name="sex" value="男" <%if(sex=="男"){%>checked<%}%> >男</label>
+                    <label class="ml"><input type="radio" name="sex" <%if(sex=="女"){%>checked<%}%> value="女">女</label>
                 </p>
             </div>
             <div class="form-group">
                 <label for="birthday">生日</label>
-                <input type="date" class="form-control" id="birthday" placeholder="请输入邮箱">
+                <input type="date" class="form-control" id="birthday" placeholder="" value="<%= birthday %>">
             </div>
             <div class="form-group">
                 <label for="email">邮箱</label>
-                <input type="email" class="form-control" id="email" placeholder="请输入邮箱">
+                <input type="email" class="form-control" id="email" placeholder="请输入邮箱" value="<%=email%>">
             </div>
             <button type="button" class="btn btn-default " id="js-submit-btn">修改</button>
         </form>
@@ -43,7 +43,7 @@
                 <div class="modal-body">
                     <input type="file" name="avatarImg" id="js-upload-avatar">
                 </div>
-                <img src="" class="fade" id="js-show-avatar" width="100%" >
+                <img src="" class="fade" id="js-show-avatar" width="100%">
                 <input type="text" name="cropdata" class="hide" id="js-cropdata-input">
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
@@ -65,7 +65,7 @@
         var cropper = new Cropper($("#js-show-avatar").get(0), {
             aspectRatio: 9 / 9,
             crop: function (e) {
-                var data = e.detail.x+"&"+e.detail.y+"&"+e.detail.height+"&"+e.detail.width;
+                var data = e.detail.x + "&" + e.detail.y + "&" + e.detail.height + "&" + e.detail.width;
                 $("#js-cropdata-input").val(data);
 
                 console.log(e.detail.x);
@@ -79,6 +79,21 @@
         });
     })
 
+    $("#js-submit-btn").click(function () {
+        $.post("/doSetPersonal", {
+            "sex": $("input[name='sex']").val(),
+            "birthday": $("#birthday").val(),
+            "email": $("#email").val()
+        }, function (result) {
+            if(result == 1){
+                alert("修改成功！")
+                window.location = "/setPersonal";
+            }else{
+                alert("修改失败！")
+                window.location = "/setPersonal";
+            }
+        })
+    })
     //建立一個可存取到該file的url
     function getObjectURL(file) {
         var url = null;

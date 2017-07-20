@@ -4,9 +4,12 @@
 var db = require("../models/db.js");
 var md5 = require("../models/md5.js")
 var fs = require("fs");
-var gm = require("gm").subClass({imageMagick: true});
+var gm = require("gm");
 //首页
 exports.showIndex = function (req, res, next) {
+    if(req.query.stats == "exit"){
+        req.session.login=0;
+    }
     //查找此人的头像
     if (req.session.login == "1") {
         db.find("user", {
@@ -119,7 +122,7 @@ exports.doLogin = function (req, res, next) {
     })
 }
 
-//设置个人资料
+//显示个人资料
 exports.showSetPersonal = function (req, res, next) {
     if (req.session.login != "1") {
         res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
@@ -135,9 +138,27 @@ exports.showSetPersonal = function (req, res, next) {
             "login": req.session.login == "1" ? true : false,
             "username": req.session.login == "1" ? req.session.username : "",
             "active": "设置个人资料",
-            "avatar": avatar
+            "avatar": avatar,
+            "sex":result[0].sex,
+            "birthday":result[0].birthday,
+            "email":result[0].email,
         })
     });
+}
+
+//设置个人资料
+exports.doSetPersonal = function(req,res,next){
+    var data = req.body;
+    var thisStr = req.session.username;
+    db.update("user",{"username":thisStr},{$set:data},function(err,result){
+        if(err){
+            console.log(err);
+            res.send("0");
+            return;
+        }
+        res.send("1");
+
+    })
 }
 
 //上传头像
@@ -173,15 +194,15 @@ exports.postAvatar = function (req, res, next) {
                     res.end("<html><body><script>alert('修改失败，重新跳转');window.location='/setPersonal';</script></body></html>");
                     return;
                 }
-                gm("./avatar/admin.jpg").crop(width, height, x, y).write("./avatar/admin1.jpg",function(err){
+                gm(newname).crop(width, height, x, y).write(newname,function(err){
                     if(err){
                         console.log(err);
                         return;
                     }
                     console.log("裁剪成功！");
+                    res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
+                    res.end("<html><body><script>alert('上传头像成功！');window.location='/setPersonal';</script></body></html>");
                 })
-                res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
-                res.end("<html><body><script>alert('上传头像成功！');window.location='/setPersonal';</script></body></html>");
             }
         )
     })

@@ -2,15 +2,38 @@
 
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
+    <% if(!login) {%>
     <div class="container">
-        <h1><% if(!avatar==""){%><img width="100" src="avatar/<%= avatar%>"/> <%}%>Hello, world!</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a
-            jumbotron and three supporting pieces of content. Use it as a starting point to create something more
-            unique.</p>
-        <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
+        <h1>班级说说</h1>
+        <p>欢迎来到班级说说，你可以注册加入我们！一起交流</p>
+        <p><a class="btn btn-primary btn-lg" href="/register" role="button">注册</a></p>
+    </div>
+    <%} else {%>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <img width="100%" src="avatar/<%= avatar%>"/>
+                <p class="text-center"><b><%= username %></b></p>
+            </div>
+            <div class="col-md-10">
+                <p>发表说说：</p>
+                <textarea class="form-control" rows="3"></textarea>
+                <p class="text-right" style="margin-top: 10px"><button type="button" class="btn btn-success">发表</button></p>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>
+<% if(!login){%>
+<div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center">登陆后才能看到说说内容哦！</h2>
+        </div>
     </div>
 </div>
-
+<%}else{%>
 <div class="container">
     <!-- Example row of columns -->
     <div class="row">
@@ -36,11 +59,8 @@
             <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
         </div>
     </div>
-
-    <hr>
-
-    
 </div> <!-- /container -->
+<%}%>
 <% include footer.ejs %>
 
 </body>

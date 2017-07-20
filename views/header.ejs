@@ -40,7 +40,8 @@
         </ul>
       <% }else{ %>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="javascript:void(0)">欢迎您！<b><%= username %></b></a></li>
+          <li><a href="javascript:void(0)">欢迎您！<b><%= username %></b></a></li>、
+          <li><a href="/?stats=exit">退出</a></li>
           <li  <% if(active == "设置个人资料"){ %> class="active" <% } %> ><a href="/setPersonal">设置个人资料</a></li>
         </ul>
       <% } %>
