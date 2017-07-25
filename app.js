@@ -42,6 +42,10 @@ app.get("/setPersonal",router.showSetPersonal);
 app.post("/doSetPersonal",router.doSetPersonal);
 //上传头像
 app.post("/postAvatar",router.postAvatar);
+//发表说说
+app.post("/postSaysay",router.postSaysay);
+//获取说说
+app.get("/getSaysay",router.getSaysay);
 //404页面
 app.use(function(req,res){
     res.render("404", {

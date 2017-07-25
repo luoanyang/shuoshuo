@@ -8,7 +8,6 @@ function _connect(callback){
             console.log("Err"+err);
             return;
         }
-        console.log("连接数据库成功！")
         callback(err,db)
         db.close();
     });

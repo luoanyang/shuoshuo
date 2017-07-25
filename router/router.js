@@ -7,8 +7,8 @@ var fs = require("fs");
 var gm = require("gm");
 //首页
 exports.showIndex = function (req, res, next) {
-    if(req.query.stats == "exit"){
-        req.session.login=0;
+    if (req.query.stats == "exit") {
+        req.session.login = 0;
     }
     //查找此人的头像
     if (req.session.login == "1") {
@@ -27,8 +27,8 @@ exports.showIndex = function (req, res, next) {
     } else {
         res.render("index", {
             "title": "全部说说",
-            "login": req.session.login == "1" ? true : false,
-            "username": req.session.login == "1" ? req.session.username : "",
+            "login": false,
+            "username": "",
             "active": "全部说说",
             "avatar": ""
         });
@@ -139,19 +139,19 @@ exports.showSetPersonal = function (req, res, next) {
             "username": req.session.login == "1" ? req.session.username : "",
             "active": "设置个人资料",
             "avatar": avatar,
-            "sex":result[0].sex,
-            "birthday":result[0].birthday,
-            "email":result[0].email,
+            "sex": result[0].sex,
+            "birthday": result[0].birthday,
+            "email": result[0].email,
         })
     });
 }
 
 //设置个人资料
-exports.doSetPersonal = function(req,res,next){
+exports.doSetPersonal = function (req, res, next) {
     var data = req.body;
     var thisStr = req.session.username;
-    db.update("user",{"username":thisStr},{$set:data},function(err,result){
-        if(err){
+    db.update("user", {"username": thisStr}, {$set: data}, function (err, result) {
+        if (err) {
             console.log(err);
             res.send("0");
             return;
@@ -171,15 +171,14 @@ exports.postAvatar = function (req, res, next) {
     var width = cropData[2];
     var height = cropData[3];
 
-    if(req.files.avatarImg.size>2000000){
-        fs.unlink(oldname,function(){
+    if (req.files.avatarImg.size > 2000000) {
+        fs.unlink(oldname, function () {
             res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
             res.end("<html><body><script>alert('图片不能大于2m！');window.location='/setPersonal';</script></body></html>");
         });
         return;
     }
 
-    console.log(newname)
     fs.rename(oldname, newname, function (err, result) {
         if (err) {
             console.log(err);
@@ -187,15 +186,15 @@ exports.postAvatar = function (req, res, next) {
         }
         db.update("user",
             {"username": req.session.username},
-            {$set:{"avatar":req.session.username + "." + req.files.avatarImg.extension}},
-            function(err,result){
-                if(err){
+            {$set: {"avatar": req.session.username + "." + req.files.avatarImg.extension}},
+            function (err, result) {
+                if (err) {
                     res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
                     res.end("<html><body><script>alert('修改失败，重新跳转');window.location='/setPersonal';</script></body></html>");
                     return;
                 }
-                gm(newname).crop(width, height, x, y).write(newname,function(err){
-                    if(err){
+                gm(newname).crop(width, height, x, y).write(newname, function (err) {
+                    if (err) {
                         console.log(err);
                         return;
                     }
@@ -208,6 +207,36 @@ exports.postAvatar = function (req, res, next) {
     })
 
 }
+
+//发表说说
+exports.postSaysay = function (req, res, next) {
+    if (!req.session.login == "1") {
+        res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
+        res.end("<html><body><script>alert('验证失败，请登录账号！');window.location='/login';</script></body></html>");
+        return;
+    }
+    var username = req.session.username;
+    var content = req.body.content;
+    db.insert("post", {"username": username, "content": content, "datetime": new Date()}, function (err, result) {
+        if (err) {
+            res.send("0");
+            return;
+        }
+        res.send("1");
+    });
+}
+
+//获取说说
+exports.getSaysay = function (req, res, next) {
+    db.find('post',{},function(err,result){
+        if(err){
+            res.send("0");
+            return;
+        }
+        res.json({"data":result});
+    })
+}
+
 //404
 exports.page404 = function (req, res, next) {
     res.render("404", {
