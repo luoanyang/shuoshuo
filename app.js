@@ -46,6 +46,8 @@ app.post("/postAvatar",router.postAvatar);
 app.post("/postSaysay",router.postSaysay);
 //获取说说
 app.get("/getSaysay",router.getSaysay);
+//点赞
+app.get("/doPraise",router.doPraise);
 //404页面
 app.use(function(req,res){
     res.render("404", {

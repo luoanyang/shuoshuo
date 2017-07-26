@@ -2,7 +2,7 @@
 
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
-    <% if(!login) {%>
+    <% if(!login) { %>
     <div class="container">
         <div class="row">
             <div class="col-md-6">
@@ -27,25 +27,27 @@
             </div>
         </div>
     </div>
-    <%} else {%>
+    <% } else { %>
     <div class="container">
         <div class="row">
             <div class="col-md-2">
                 <div class="avatar-border">
-                    <img class="img-thumbnail" width="100%" src="avatar/<%= avatar%>"/>
+                    <img class="img-thumbnail" width="100%" src="avatar/<%= avatar %>"/>
                     <p class="text-center"><b><%= username %></b></p>
                 </div>
             </div>
             <div class="col-md-10">
                 <p>发表说说：</p>
                 <textarea class="form-control" rows="3" id="saysayContent"></textarea>
-                <p class="text-right" style="margin-top: 10px"><button type="button" class="btn btn-success" id="js-post-saysayContent">发表</button></p>
+                <p class="text-right" style="margin-top: 10px">
+                    <button type="button" class="btn btn-success" id="js-post-saysayContent">发表</button>
+                </p>
             </div>
         </div>
     </div>
     <% } %>
 </div>
-<% if(!login){%>
+<% if(!login){ %>
 <div class="container">
     <!-- Example row of columns -->
     <div class="row">
@@ -54,43 +56,92 @@
         </div>
     </div>
 </div>
-<%}else{%>
+<% }else{ %>
 <div class="container" id="content">
     <!-- Example row of columns -->
     <div class="row">
 
-        <div class="col-md-4" v-for="(item,index) in data">
-            <h2 ><img :src="'avatar/'+item.username+'.jpg'" width="30px"> {{item.username}} 发表了：</h2>
-            <p>{{item.content}}</p>
-            <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+        <div class="col-md-12" v-for="(item,index) in data">
+            <div class="border-box">
+                <h2><img :src="'avatar/'+item.username+'.jpg'" width="40px"> {{item.username}} 发表了：</h2>
+                <p>{{item.content}}</p>
+                <p class="text-right"><span v-if="item.praise">{{item.praise}}点赞了</span>
+                    <button v-if="item.praise == nowuser" type="button" class="btn btn-danger btn-sm disabled" style="margin-right: 10px">已点赞
+                    </button>
+                    <button v-else type="button" class="btn btn-danger btn-sm" style="margin-right: 10px"
+                            @click="clickPraise(item.username,item.content)">点赞
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm">评论</button>
+                </p>
+            </div>
         </div>
-
     </div>
+    <nav style="margin-top: 40px">
+        <ul class="pager">
+
+            <li v-if="page>1"><a href="javascript:void(0)" @click="prevPage">上一页</a></li>
+            <li v-else class="disabled"><a href="javascript:void(0)">上一页</a></li>
+            <li><b style="margin:0 20px;">当前第{{page}}页 | 共:{{pageCount}}页</b></li>
+            <li v-if="page<pageCount"><a href="javascript:void(0)" @click="nextPage">下一页</a></li>
+            <li v-else class="disabled"><a href="javascript:void(0)">下一页</a></li>
+
+        </ul>
+    </nav>
 </div> <!-- /container -->
-<%}%>
+<% } %>
 <% include footer.ejs %>
 <script src="js/vue.js"></script>
 <script src="js/axios.min.js"></script>
 <script>
     var nw = new Vue({
-        el:"#content",
-        data:{
-            data:[]
+        el: "#content",
+        data: {
+            nowuser:'',
+            page: 1,
+            pageCount: '',
+            data: []
         },
-        mounted:function(){
-            this.getSaysay();
+        mounted: function () {
+            this.initSaysay();
         },
-        methods:{
-            getSaysay:function(){
+        methods: {
+            getSaysay: function (obj) {
                 var _this = this;
-                axios.get('/getSaysay')
-                    .then(function(response){
-                        console.log(response)
-                        _this.data=response.data.data;
-                    })
-                    .catch(function(err){
-                        console.log(err);
-                    });
+                axios.get('/getSaysay?page=' + obj)
+                        .then(function (response) {
+                            console.log(response)
+                            _this.data = response.data.data.data;
+                            _this.pageCount = response.data.data.count;
+                            _this.nowuser = response.data.nowuser;
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+            },
+            prevPage: function () {
+                this.page--;
+                this.getSaysay(this.page)
+            },
+            nextPage: function () {
+                this.page++;
+                this.getSaysay(this.page)
+            },
+            initSaysay: function () {
+                this.getSaysay(this.page)
+            },
+            clickPraise: function (name, content) {
+                var _this = this;
+                axios.get('/doPraise', {
+                    params: {
+                        "username": name,
+                        "content": content
+                    }
+                }).then(function (response) {
+                            _this.getSaysay(_this.page)
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
             }
         }
 
@@ -98,7 +149,7 @@
 
 </script>
 <script>
-$(document).ready(function () {
+    $(document).ready(function () {
         $("input").focus(function () {
             $("#js-false-box").fadeOut();
         })
@@ -121,14 +172,14 @@ $(document).ready(function () {
                 }
             });
         });
-        $("#js-post-saysayContent").click(function(){
-            $.post("/postSaysay",{
-                "content":$("#saysayContent").val()
-                },function(result){
-                if(result == "1"){
+        $("#js-post-saysayContent").click(function () {
+            $.post("/postSaysay", {
+                "content": $("#saysayContent").val()
+            }, function (result) {
+                if (result == "1") {
                     alert("说说发表成功!");
                     window.location = "/";
-                }else{
+                } else {
                     alert("说说发表失败!");
                 }
             });

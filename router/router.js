@@ -228,12 +228,36 @@ exports.postSaysay = function (req, res, next) {
 
 //获取说说
 exports.getSaysay = function (req, res, next) {
-    db.find('post',{},function(err,result){
+    db.findPage('post',{},{
+        limit:6,
+        skip:parseInt(req.query.page)
+    },function(err,result){
         if(err){
             res.send("0");
             return;
         }
-        res.json({"data":result});
+        res.json({"data":result,"nowuser":req.session.username});
+    })
+}
+
+//点赞
+exports.doPraise = function(req,res,next){
+    var username = req.query.username;
+    var content = req.query.content;
+    db.update("post",{
+        "username":username,
+        "content":content
+    },{
+        $set:{
+            "praise":req.session.username
+        }
+    },function(err,result){
+        if(err){
+            console.log(err);
+            res.send("0");
+            return;
+        }
+        res.send("1");
     })
 }
 
