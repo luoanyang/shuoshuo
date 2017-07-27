@@ -248,7 +248,7 @@ exports.doPraise = function(req,res,next){
         "username":username,
         "content":content
     },{
-        $set:{
+        $push:{
             "praise":req.session.username
         }
     },function(err,result){

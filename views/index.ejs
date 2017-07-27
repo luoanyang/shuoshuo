@@ -65,8 +65,8 @@
             <div class="border-box">
                 <h2><img :src="'avatar/'+item.username+'.jpg'" width="40px"> {{item.username}} 发表了：</h2>
                 <p>{{item.content}}</p>
-                <p class="text-right"><span v-if="item.praise">{{item.praise}}点赞了</span>
-                    <button v-if="item.praise == nowuser" type="button" class="btn btn-danger btn-sm disabled" style="margin-right: 10px">已点赞
+                <p class="text-right"><span v-if="item.praise"><b v-for="el in item.praise">{{el}}、</b>点赞了</span>
+                    <button v-if="item.praise " type="button" class="btn btn-danger btn-sm disabled" style="margin-right: 10px">已点赞
                     </button>
                     <button v-else type="button" class="btn btn-danger btn-sm" style="margin-right: 10px"
                             @click="clickPraise(item.username,item.content)">点赞
