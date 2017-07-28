@@ -1,0 +1,97 @@
+<% include header.ejs %>
+
+<div class="container" id="content">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h1>我的说说</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="panel panel-default" v-for="(item,index) in data">
+            <!-- Default panel contents -->
+            <div class="panel-heading">发表于：{{item.datetime}}</div>
+            <div class="panel-body">
+                <p>{{item.content}}</p>
+            </div>
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item" v-for="cm in item.comment"><b>{{cm.name}}评论了:</b>{{cm.commentContent}}</li>
+            </ul>
+            <ul class="list-group" v-if="item.praise.length>0">
+                <li class="list-group-item"><b v-for="el in item.praise">{{el}}、</b>点赞了</li>
+            </ul>
+        </div>
+    </div>
+    <nav style="margin-top: 40px">
+        <ul class="pager">
+
+            <li v-if="page>1"><a href="javascript:void(0)" @click="prevPage">上一页</a></li>
+            <li v-else class="disabled"><a href="javascript:void(0)">上一页</a></li>
+            <li><b style="margin:0 20px;">当前第{{page}}页 | 共:{{pageCount}}页</b></li>
+            <li v-if="page<pageCount"><a href="javascript:void(0)" @click="nextPage">下一页</a></li>
+            <li v-else class="disabled"><a href="javascript:void(0)">下一页</a></li>
+
+        </ul>
+    </nav>
+</div> <!-- /container -->
+
+<% include footer.ejs %>
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+    var nw = new Vue({
+        el: "#content",
+        data: {
+            page: 1,
+            pageCount: '',
+            data: []
+        },
+        mounted: function () {
+            this.initSaysay();
+        },
+        methods: {
+            getSaysay: function (obj) {
+                var _this = this;
+                axios.get('/getMySaysay?page=' + obj)
+                        .then(function (response) {
+                            console.log(response)
+                            _this.data = response.data.data.data;
+                            _this.pageCount = response.data.data.count;
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+            },
+            prevPage: function () {
+                this.page--;
+                this.getSaysay(this.page)
+            },
+            nextPage: function () {
+                this.page++;
+                this.getSaysay(this.page)
+            },
+            initSaysay: function () {
+                this.getSaysay(this.page)
+            },
+            clickPraise: function (name, content) {
+                var _this = this;
+                axios.get('/doPraise', {
+                    params: {
+                        "username": name,
+                        "content": content
+                    }
+                }).then(function (response) {
+                            _this.getSaysay(_this.page)
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+            }
+        }
+
+    })
+
+</script>
+</body>
+</html>

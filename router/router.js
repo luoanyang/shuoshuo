@@ -217,7 +217,7 @@ exports.postSaysay = function (req, res, next) {
     }
     var username = req.session.username;
     var content = req.body.content;
-    db.insert("post", {"username": username, "content": content, "datetime": new Date()}, function (err, result) {
+    db.insert("post", {"username": username, "content": content, "datetime": new Date(Date.now() + (8 * 60 * 60 * 1000)),"praise":[],"comment":[]}, function (err, result) {
         if (err) {
             res.send("0");
             return;
@@ -258,6 +258,99 @@ exports.doPraise = function(req,res,next){
             return;
         }
         res.send("1");
+    })
+}
+
+
+//评论
+exports.postComment = function(req,res,next){
+    var username = req.query.user;
+    var content = req.query.content;
+    var comment = req.query.comment;
+    console.log(comment)
+    db.update("post",{
+        "username":username,
+        "content":content
+    },{
+        $push:{
+            "comment":{name:req.session.username,commentContent:comment}
+        }
+    },function(err,result){
+        if(err){
+            console.log(err);
+            res.send("0");
+            return;
+        }
+        res.send("1");
+    })
+}
+
+//显示所有成员
+exports.showAllUser = function(req,res,next){
+    if (!req.session.login == "1") {
+        res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
+        res.end("<html><body><script>alert('验证失败，请登录账号！');window.location='/login';</script></body></html>");
+        return;
+    }
+    res.render("allUser", {
+        "title": "所有成员|班级说说",
+        "login": req.session.login == "1" ? true : false,
+        "username": req.session.login == "1" ? req.session.username : "",
+        "active": "成员列表"
+    })
+}
+
+//获取所有成员
+exports.getAllUser = function(req,res,next){
+    db.findPage("user",{},{
+        limit:6,
+        skip:parseInt(req.query.page)
+    },function(err,result){
+        if(err){
+            console.log(err);
+            return;
+        }
+        var datas = [];
+        console.log(result)
+        for(var i in result.data){
+            var data = {
+                username:result.data[i].username,
+                avatar:result.data[i].avatar,
+                birthday:result.data[i].birthday,
+                sex:result.data[i].sex
+            }
+            datas.push(data);
+        }
+        res.json({"data":datas,"count":result.count});
+    })
+}
+//显示我的说说
+exports.mySaysay = function(req,res,next){
+    if (!req.session.login == "1") {
+        res.writeHead(200, {"Content-type": "text/html;charset=utf8"});
+        res.end("<html><body><script>alert('验证失败，请登录账号！');window.location='/login';</script></body></html>");
+        return;
+    }
+    res.render("mySaysay", {
+        "title": "所有成员|班级说说",
+        "login": req.session.login == "1" ? true : false,
+        "username": req.session.login == "1" ? req.session.username : "",
+        "active": "我的说说"
+    })
+}
+
+
+//获取我的说说
+exports.getMySaysay = function(req,res,next){
+    db.findPage("post",{username:req.session.username},{
+        limit:3,
+        skip:parseInt(req.query.page)
+    },function(err,result){
+        if(err){
+            console.log(err);
+            return;
+        }
+        res.json({"data":result});
     })
 }
 

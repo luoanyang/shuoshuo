@@ -65,13 +65,14 @@
             <div class="border-box">
                 <h2><img :src="'avatar/'+item.username+'.jpg'" width="40px"> {{item.username}} 发表了：</h2>
                 <p>{{item.content}}</p>
-                <p class="text-right"><span v-if="item.praise"><b v-for="el in item.praise">{{el}}、</b>点赞了</span>
-                    <button v-if="item.praise " type="button" class="btn btn-danger btn-sm disabled" style="margin-right: 10px">已点赞
+                <p v-for="cm in item.comment "><b>{{cm.name}}说:</b>{{cm.commentContent}}</p>
+                <p class="text-right"><span v-if="item.praise.length>0"><b v-for="el in item.praise">{{el}}、</b>点赞了</span>
+                    <button v-if="item.praise.toString().indexOf(nowuser)!==-1" type="button" class="btn btn-danger btn-sm disabled" style="margin-right: 10px">已点赞
                     </button>
                     <button v-else type="button" class="btn btn-danger btn-sm" style="margin-right: 10px"
                             @click="clickPraise(item.username,item.content)">点赞
                     </button>
-                    <button type="button" class="btn btn-primary btn-sm">评论</button>
+                    <button type="button" class="btn btn-primary btn-sm" @click="showCommentModal(item.username,item.content)">评论</button>
                 </p>
             </div>
         </div>
@@ -87,7 +88,26 @@
 
         </ul>
     </nav>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" :class="{'comment-modal in' : commentState}">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"  @click="commentState=false"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">评论</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" rows="3" v-model="commentContent"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" @click="commentState=false,commentContent=''">取消</button>
+                    <button type="button" class="btn btn-primary" @click="postComment()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div> <!-- /container -->
+<!-- Modal -->
+
 <% } %>
 <% include footer.ejs %>
 <script src="js/vue.js"></script>
@@ -99,7 +119,11 @@
             nowuser:'',
             page: 1,
             pageCount: '',
-            data: []
+            data: [],
+            commentState:false,
+            commentContent:'',
+            saysayUser:'',
+            saysayContent:''
         },
         mounted: function () {
             this.initSaysay();
@@ -138,6 +162,28 @@
                     }
                 }).then(function (response) {
                             _this.getSaysay(_this.page)
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+            },
+            showCommentModal:function(user,content){
+                this.saysayUser=user;
+                this.saysayContent=content;
+                this.commentState=true;
+            },
+            postComment:function(){
+                _this = this;
+                axios.get('/postComment', {
+                    params: {
+                        "user":_this.saysayUser,
+                        "content":_this.saysayContent,
+                        "comment":_this.commentContent
+                    }
+                }).then(function (response) {
+                            _this.getSaysay(_this.page)
+                            _this.commentState = false;
+                            _this.commentContent='';
                         })
                         .catch(function (err) {
                             console.log(err);

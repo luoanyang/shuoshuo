@@ -48,6 +48,16 @@ app.post("/postSaysay",router.postSaysay);
 app.get("/getSaysay",router.getSaysay);
 //点赞
 app.get("/doPraise",router.doPraise);
+//所有成员
+app.get("/allUser",router.showAllUser);
+//获取所有成员
+app.get("/getAllUser",router.getAllUser);
+//我的说说
+app.get("/mySaysay",router.mySaysay);
+//获取我的说说
+app.get("/getMySaysay",router.getMySaysay);
+//评论
+app.get("/postComment",router.postComment);
 //404页面
 app.use(function(req,res){
     res.render("404", {
@@ -59,3 +69,4 @@ app.use(function(req,res){
 });
 
 app.listen(80);
+console.log("http://localhost/")
