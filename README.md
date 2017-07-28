@@ -16,9 +16,9 @@
 |__setting.json    //数据库的地址
 
 ### 4.数据库结构
-1. 用户表
+1. 用户表 [查看大图](https://raw.githubusercontent.com/luoanyang/shuoshuo/master/source/2.jpg)
 ![项目演示](source/2.jpg)
-2. 说说表
+2. 说说表 [查看大图](https://raw.githubusercontent.com/luoanyang/shuoshuo/master/source/1.jpg)
 ![项目演示](source/1.jpg)
 
 ### 4.项目运行  
